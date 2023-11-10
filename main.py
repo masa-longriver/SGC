@@ -31,11 +31,15 @@ if __name__ == '__main__':
     train_losses = []
     valid_losses = []
     for epoch in range(config['train']['epochs']):
-        train_loss = run(config, model, dataset, optimizer)
-        valid_loss = run(config, model, dataset, optimizer, state='valid')
+        train_loss, train_acc = run(config, model, dataset, optimizer)
+        valid_loss, valid_acc = run(
+            config, model, dataset, optimizer, state='valid'
+        )
         log_str = f"Epoch: {epoch:>3}, "
         log_str += f"train_loss: {train_loss:.4f}, "
-        log_str += f"valid_loss: {valid_loss:.4f}"
+        log_str += f"valid_loss: {valid_loss:.4f}, "
+        log_str += f"train_acc: {train_acc:.4f}, "
+        log_str += f"valid_acc: {valid_acc:.4f}"
         print(log_str, flush=True)
         train_losses.append(train_loss.detach())
         valid_losses.append(valid_loss.detach())
@@ -44,8 +48,8 @@ if __name__ == '__main__':
         if es_bool:
             break
     
-    test_loss = run(config, model, dataset, optimizer, state='test')
-    print(f"test_loss: {test_loss:.4f}")
+    test_loss, test_acc = run(config, model, dataset, optimizer, state='test')
+    print(f"test_loss: {test_loss:.4f}, test_acc: {test_acc:.4f}")
 
     visualize.save_loss(train_losses, valid_losses)
     visualize.save_result(model, dataset)

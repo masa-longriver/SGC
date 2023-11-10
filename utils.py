@@ -75,18 +75,40 @@ class Visualize():
         plt.close()
     
     def save_result(self, model, dataset, color_map="Set3"):
+        model.eval()
         _, pred = model(dataset.data).max(dim=1)
+        
+        fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(20, 16))
+        axes = axes.flatten()
+        G = to_networkx(dataset.data, to_undirected=True)
+        color_map = plt.cm.tab10(dataset.data.y / dataset.num_classes)
+        pos = nx.spring_layout(G, seed=25)
+        nx.draw(
+            G, 
+            pos, 
+            ax=axes[0],
+            node_color=color_map, 
+            with_labels=False,
+            node_size=20,
+            font_weight='bold'
+        )
+        axes[0].axis('off')
+
         G = to_networkx(dataset.data, to_undirected=True)
         color_map = plt.cm.tab10(pred / dataset.num_classes)
         pos = nx.spring_layout(G, seed=25)
         nx.draw(
             G, 
             pos, 
+            ax=axes[1],
             node_color=color_map, 
             with_labels=False,
             node_size=20,
             font_weight='bold'
         )
+        axes[1].axis('off')
+
         file_nm = os.path.join(self.parent_path, f"{self.now}_result.png")
+        plt.tight_layout()
         plt.savefig(file_nm)
         plt.close()
